@@ -47,6 +47,7 @@ private:
 
     void onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state, TranslationBlock *tb, uint64_t pc);
     void do_killState(S2EExecutionState *state, uint64_t pc);
+    std::string addrToMessage(uint64_t pc);
 };
 
 } // namespace plugins
