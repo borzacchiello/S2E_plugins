@@ -44,9 +44,16 @@ private:
     bool  debug;
     unsigned int thread_address;
     ProcessExecutionDetector *m_procDetector;
+    std::map<S2EExecutionState*, int> loopCount;
 
     void onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state, TranslationBlock *tb, uint64_t pc);
+    void onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,
+                     const std::vector<klee::ref<klee::Expr>> &);
+
     void do_killState(S2EExecutionState *state, uint64_t pc);
+    void update_loopCount(S2EExecutionState *state, uint64_t pc);
+    void otherCommandsCallback(S2EExecutionState *state, uint64_t pc);
+    void echoCallback(S2EExecutionState *state, uint64_t pc);
     std::string addrToMessage(uint64_t pc);
 };
 
