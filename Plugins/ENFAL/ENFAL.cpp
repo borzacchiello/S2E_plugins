@@ -164,11 +164,11 @@ void ENFAL::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *s
         signal->connect(sigc::mem_fun(*this, &ENFAL::echoCallback));
     }
     // ****** COMMANDS ******
-//    if (pc == thread_address + OFFSET_IPOP_LOAD_CHECK) {
-//        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
-//    }
+    if (pc == thread_address + OFFSET_IPOP_LOAD_CHECK) {
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    }
     if (pc == thread_address + OFFSET_PING) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_SEND_FILE) {
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
@@ -176,14 +176,14 @@ void ENFAL::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *s
     if (pc == thread_address + OFFSET_RECV_FILE) {
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-//    if (pc == thread_address + OFFSET_CMDEXEC) {
-//        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
-//    }
+    if (pc == thread_address + OFFSET_CMDEXEC) {
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    }
     if (pc == thread_address + OFFSET_DELETE_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_MOVE_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_LS) {
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
@@ -192,13 +192,13 @@ void ENFAL::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *s
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
     if (pc == thread_address + OFFSET_MKDIR) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_RMDIR) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_TERMINATE_PROCESS) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
     if (pc == thread_address + OFFSET_WINEXEC_NETBN) {
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
@@ -207,7 +207,7 @@ void ENFAL::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *s
         signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
     if (pc == thread_address + OFFSET_WINEXEC_NFAL) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
     }
 }
 
@@ -232,7 +232,17 @@ void ENFAL::do_killState(S2EExecutionState *state, uint64_t pc) {
     s2e()->getExecutor()->terminateStateEarly(*state, os.str());
 }
 
+void ENFAL::do_logName(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
+    std::ostringstream os;
+    os << addrToMessage(pc) << "\n";
+    getInfoStream(state) << os.str();
+}
+
 void ENFAL::update_loopCount(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
     if (!loopCount.count(state))
         loopCount[state] = 1;
     else
@@ -250,6 +260,8 @@ void ENFAL::update_loopCount(S2EExecutionState *state, uint64_t pc) {
 }
 
 void ENFAL::otherCommandsCallback(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
     if (!loopCount.count(state) || loopCount[state] < 2) {
         do_killState(state, pc);
         return;
@@ -263,6 +275,8 @@ void ENFAL::otherCommandsCallback(S2EExecutionState *state, uint64_t pc) {
 }
 
 void ENFAL::echoCallback(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
     if (loopCount.count(state) && loopCount[state] >= 2) {
         do_killState(state, pc);
         return;

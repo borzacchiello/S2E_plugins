@@ -51,6 +51,7 @@ private:
                      const std::vector<klee::ref<klee::Expr>> &);
 
     void do_killState(S2EExecutionState *state, uint64_t pc);
+    void do_logName(S2EExecutionState *state, uint64_t pc);
     void update_loopCount(S2EExecutionState *state, uint64_t pc);
     void otherCommandsCallback(S2EExecutionState *state, uint64_t pc);
     void echoCallback(S2EExecutionState *state, uint64_t pc);
