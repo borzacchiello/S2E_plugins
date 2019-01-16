@@ -12,7 +12,7 @@ namespace plugins {
 using namespace klee;
 
 S2E_DEFINE_PLUGIN(ConcretizationManager,
-"Manage addresses concretization strategy", "",
+"Manage addresses concretization strategy.", "",
 "ProcessExecutionDetector");
 
 void ConcretizationManager::initialize() {
@@ -53,8 +53,6 @@ void ConcretizationManager::onBeforeSymbolicDataMemoryAccess(S2EExecutionState *
 }
 
 void ConcretizationManager::do_concretizeAddress(S2EExecutionState *state, ref<Expr> addr, bool toMax) {
-    if (!m_procDetector->isTracked(state)) return;
-
     ref<ConstantExpr> ris;
     if (!toMax)
         ris = s2e()->getExecutor()->toConstant(*state, addr, "");
