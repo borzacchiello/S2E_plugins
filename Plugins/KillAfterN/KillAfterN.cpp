@@ -49,7 +49,7 @@ void KillAfterN::handleOpcodeInvocation(S2EExecutionState *state, uint64_t guest
             num_instructions = command.num_instructions==0 ? num_instructions : command.num_instructions;
             DEBUG_PRINT (
                 std::ostringstream message;
-                message << "Counting started at: 0x" << std::hex << state->regs()->getPc(); << "\n";
+                message << "Counting started at: 0x" << std::hex << state->regs()->getPc() << "\n";
                 getInfoStream(state) << message.str();
             )
         } break;
@@ -60,26 +60,27 @@ void KillAfterN::handleOpcodeInvocation(S2EExecutionState *state, uint64_t guest
 
 void KillAfterN::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state,
                                    TranslationBlock *tb, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
     if (!counting) return;
 
-    if (!instructionCount.count(state))
-        instructionCount[state] = 1;
+    if (!instructionCount.count(state->getGuid()))
+        instructionCount[state->getGuid()] = 1;
     else
-        instructionCount[state] += 1;
+        instructionCount[state->getGuid()] += 1;
 
-    if (instructionCount[state] > num_instructions)
+    if (instructionCount[state->getGuid()] > num_instructions)
         do_killState(state, pc);
 }
 
 void KillAfterN::onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,
                         const std::vector<klee::ref<klee::Expr>> &) {
-    if (!instructionCount.count(oldState)) return;
+    if (!instructionCount.count(oldState->getGuid())) return;
 
-    int count = instructionCount[oldState];
+    int count = instructionCount[oldState->getGuid()];
 
     std::vector<S2EExecutionState *>::const_iterator it;
     for (it = newStates.begin(); it != newStates.end(); ++it)
-        instructionCount[*it] = count;
+        instructionCount[(*it)->getGuid()] = count;
 }
 
 void KillAfterN::do_killState(S2EExecutionState *state, uint64_t pc) {

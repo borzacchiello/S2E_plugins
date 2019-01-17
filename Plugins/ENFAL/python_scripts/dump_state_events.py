@@ -6,10 +6,12 @@ def get_events(path, logfile):
         line = log.readline()
         while line:
             line = line.strip()
-            if "[ENFAL-hook]" in line:
+            # if "[ENFAL-hook]" in line:
+            if "[hook]" in line:
                 state_number = int(line[line.find("[State ")+7: line.find("]")])
                 if state_number in path:
-                    print line[line.find("[ENFAL-hook]")+len("[ENFAL-hook]"):]
+                    # print line[line.find("[ENFAL-hook]")+len("[ENFAL-hook]"):]
+                    print line[line.find("[hook]")+len("[hook]"):]
                 line = log.readline().strip()
                 if "SymbExpression" in line and state_number in path:
                     line = line[line.find(" - ")+3:]
@@ -23,7 +25,8 @@ def get_events(path, logfile):
                 if state_number in path:
                     print line[line.find("LibraryCallMonitor: ")+len("LibraryCallMonitor: "):]
                 line = log.readline()
-            elif "ENFAL:" in line:
+            # elif "ENFAL:" in line:
+            elif "NetWire:" in line:
                 state_number = int(line[line.find("[State ")+7: line.find("]")])
                 if state_number in path:
                     print line[line.find("ENFAL:")+len("ENFAL:"):]
