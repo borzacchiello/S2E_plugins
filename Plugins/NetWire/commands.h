@@ -44,7 +44,7 @@
 #define CMD_48 0x4017e6
 #define CMD_49 0x40181e
 #define CMD_50 0x401798
-#define CMD_53 0x4018d4
+#define CMD_53 0x401856
 #define CMD_55 0x4018f5
 #define CMD_56 0x4018e8
 #define CMD_57 0x4018d4

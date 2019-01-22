@@ -15,6 +15,7 @@
 #define AVOID_1 0x04020DE
 #define AVOID_2 0x040D3B6
 #define AFTER_SWITCH 0x040211E
+#define CHECK_FAIL 0x040212F
 
 namespace s2e {
 namespace plugins {
@@ -28,6 +29,7 @@ std::string NetWire::addrToMessage(uint64_t pc) {
     if (pc == AVOID_1) return "AVOID_1";
     if (pc == AVOID_2) return "AVOID_2";
     if (pc == AFTER_SWITCH) return "AFTER_SWITCH";
+    if (pc == CHECK_FAIL) return "CHECK_FAIL";
     if (pc == CMD_00) return "CMD_00";
     if (pc == CMD_04) return "CMD_04";
     if (pc == CMD_05) return "CMD_05";
@@ -110,8 +112,9 @@ void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState 
     if (pc == AVOID_1) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     if (pc == AVOID_2) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     if (pc == AFTER_SWITCH) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity));
+    if (pc == CHECK_FAIL) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity2));
     if (pc == CMD_00) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
-    if (pc == CMD_04) signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
+    if (pc == CMD_04) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity));
     if (pc == CMD_05) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     if (pc == CMD_06) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     if (pc == CMD_08) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
@@ -189,8 +192,26 @@ void NetWire::update_loopCount(S2EExecutionState *state, uint64_t pc) {
 
 void NetWire::do_checkValidity(S2EExecutionState *state, uint64_t pc) {
     if (!m_procDetector->isTracked(state)) return;
-
+    DEBUG_PRINT (
+            std::ostringstream message;
+            message << "In checkvalidity of state 0x" << std::hex << state <<
+                    "    Message: " << addrToMessage(pc) << "\n";
+            getInfoStream(state) << message.str();
+    )
     if (!loopCount.count(state) || loopCount[state] > 1)
+        do_killState(state, pc);
+}
+
+void NetWire::do_checkValidity2(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
+    DEBUG_PRINT (
+        std::ostringstream message;
+        message << "In checkvalidity2 of state 0x" << std::hex << state << "\n" <<
+            "    Message: " << addrToMessage(pc) << "\n";
+        getInfoStream(state) << message.str();
+    )
+    if (loopCount.count(state))
         do_killState(state, pc);
 }
 

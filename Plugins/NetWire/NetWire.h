@@ -32,6 +32,7 @@ private:
 
     void update_loopCount(S2EExecutionState *state, uint64_t pc);
     void do_checkValidity(S2EExecutionState *state, uint64_t pc);
+    void do_checkValidity2(S2EExecutionState *state, uint64_t pc);
     void do_killState(S2EExecutionState *state, uint64_t pc);
     void do_logName(S2EExecutionState *state, uint64_t pc);
     std::string addrToMessage(uint64_t pc);
