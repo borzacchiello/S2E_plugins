@@ -62,4 +62,58 @@
 #define CMD_75 0x401c9f
 #define CMD_DF 0x401f9a
 
+typedef struct cmd_flags {
+    bool cmd_00;
+    bool cmd_04;
+    bool cmd_05;
+    bool cmd_06;
+    bool cmd_08;
+    bool cmd_09;
+    bool cmd_10;
+    bool cmd_11;
+    bool cmd_12;
+    bool cmd_13;
+    bool cmd_15;
+    bool cmd_17;
+    bool cmd_19;
+    bool cmd_20;
+    bool cmd_21;
+    bool cmd_22;
+    bool cmd_23;
+    bool cmd_24;
+    bool cmd_25;
+    bool cmd_26;
+    bool cmd_27;
+    bool cmd_28;
+    bool cmd_29;
+    bool cmd_31;
+    bool cmd_32;
+    bool cmd_33;
+    bool cmd_35;
+    bool cmd_37;
+    bool cmd_39;
+    bool cmd_41;
+    bool cmd_42;
+    bool cmd_43;
+    bool cmd_44;
+    bool cmd_46;
+    bool cmd_47;
+    bool cmd_48;
+    bool cmd_49;
+    bool cmd_50;
+    bool cmd_53;
+    bool cmd_55;
+    bool cmd_56;
+    bool cmd_57;
+    bool cmd_60;
+    bool cmd_62;
+    bool cmd_64;
+    bool cmd_66;
+    bool cmd_67;
+    bool cmd_69;
+    bool cmd_71;
+    bool cmd_72;
+    bool cmd_75;
+} cmd_flags;
+
 #endif //SOURCE_COMMANDS_H

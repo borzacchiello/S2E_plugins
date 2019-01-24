@@ -80,7 +80,7 @@ void KillAfterN::onStateFork(S2EExecutionState *oldState, const std::vector<S2EE
 
     std::vector<S2EExecutionState *>::const_iterator it;
     for (it = newStates.begin(); it != newStates.end(); ++it)
-        instructionCount[(*it)->getGuid()] = count;
+        instructionCount[(*it)->getGuid()] = count+1;
 }
 
 void KillAfterN::do_killState(S2EExecutionState *state, uint64_t pc) {

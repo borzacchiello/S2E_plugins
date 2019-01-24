@@ -8,6 +8,7 @@
 #include <s2e/Plugin.h>
 #include <s2e/Plugins/Core/BaseInstructions.h>
 #include <s2e/S2EExecutionState.h>
+#include "commands.h"
 
 namespace s2e {
 namespace plugins {
@@ -23,6 +24,7 @@ public:
 
 private:
     bool  debug;
+    cmd_flags flags;
     ProcessExecutionDetector *m_procDetector;
 
     std::map<S2EExecutionState*, int> loopCount;
