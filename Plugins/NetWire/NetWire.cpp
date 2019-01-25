@@ -86,7 +86,8 @@ std::string NetWire::addrToMessage(uint64_t pc) {
 }
 
 void NetWire::initialize() {
-    debug = true;// s2e()->getConfig()->getBool(getConfigKey() + ".debug");
+    debug     = true; // s2e()->getConfig()->getBool(getConfigKey() + ".debug");
+    counting = false;
     flags = { 0 };
     flags.cmd_00 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_00");
     flags.cmd_04 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_04");
@@ -139,6 +140,9 @@ void NetWire::initialize() {
     flags.cmd_71 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_71");
     flags.cmd_72 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_72");
     flags.cmd_75 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_75");
+
+    limit_instruction = s2e()->getConfig()->getBool(getConfigKey() + ".limit_instruction");
+    instruction_threshold = s2e()->getConfig()->getInt(getConfigKey() + ".instruction_threshold");
 
     m_procDetector = s2e()->getPlugin<ProcessExecutionDetector>();
     s2e()->getCorePlugin()->onTranslateInstructionStart.connect(
@@ -217,6 +221,19 @@ void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState 
     if (pc == CMD_72) signal->connect(sigc::mem_fun(*this, flags.cmd_72?&NetWire::do_killState:&NetWire::do_logName));
     if (pc == CMD_75) signal->connect(sigc::mem_fun(*this, flags.cmd_75?&NetWire::do_killState:&NetWire::do_logName));
     if (pc == CMD_DF) signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
+
+    if (limit_instruction && counting)
+        signal->connect(sigc::mem_fun(*this, &NetWire::do_incrementCounter));
+}
+
+void NetWire::do_incrementCounter(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
+    DECLARE_PLUGINSTATE(InstructionTrackerState, state);
+    plgState->increment();
+    // getInfoStream(state) << "plgState get: " << plgState->get() << "\n";
+    if (plgState->get() > instruction_threshold)
+        do_killState(state, pc);
 }
 
 void NetWire::update_loopCount(S2EExecutionState *state, uint64_t pc) {
@@ -234,7 +251,9 @@ void NetWire::update_loopCount(S2EExecutionState *state, uint64_t pc) {
             getInfoStream(state) << message.str();
     )
 
-    if (loopCount[state] > 2)
+    if (loopCount[state] == 2)
+        counting = true;
+    else if (loopCount[state] > 2)
         do_killState(state, pc);
 }
 

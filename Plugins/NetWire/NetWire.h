@@ -10,8 +10,34 @@
 #include <s2e/S2EExecutionState.h>
 #include "commands.h"
 
+
 namespace s2e {
 namespace plugins {
+
+class InstructionTrackerState: public PluginState
+{
+private:
+    int m_count;
+
+public:
+    InstructionTrackerState() {
+        m_count = 0;
+    }
+
+    ~InstructionTrackerState() {}
+
+    static PluginState *factory(Plugin*, S2EExecutionState*) {
+        return new InstructionTrackerState();
+    }
+
+    InstructionTrackerState *clone() const {
+        return new InstructionTrackerState(*this);
+    }
+
+    void increment() { ++m_count; }
+    int get() { return m_count; }
+
+};
 
 class ProcessExecutionDetector;
 class NetWire : public Plugin {
@@ -23,7 +49,10 @@ public:
     void initialize();
 
 private:
-    bool  debug;
+    bool counting;
+    bool debug;
+    bool limit_instruction;
+    int instruction_threshold;
     cmd_flags flags;
     ProcessExecutionDetector *m_procDetector;
 
@@ -32,6 +61,7 @@ private:
     void onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,
                      const std::vector<klee::ref<klee::Expr>> &);
 
+    void do_incrementCounter(S2EExecutionState *state, uint64_t pc);
     void update_loopCount(S2EExecutionState *state, uint64_t pc);
     void do_checkValidity(S2EExecutionState *state, uint64_t pc);
     void do_checkValidity2(S2EExecutionState *state, uint64_t pc);
