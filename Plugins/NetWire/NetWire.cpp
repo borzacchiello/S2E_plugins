@@ -170,10 +170,17 @@ void NetWire::onStateFork(S2EExecutionState *oldState, const std::vector<S2EExec
     else
         recv_count = 0;
 
+    bool counting_state;
+    if (counting_flag.count(oldState))
+        counting_state = counting_flag[oldState];
+    else
+        counting_state = false;
+
     std::vector<S2EExecutionState *>::const_iterator it;
     for (it = newStates.begin(); it != newStates.end(); ++it) {
         loopCount[*it] = count_loopCount;
         count_loop_recv[*it] = recv_count;
+        counting_flag[*it] = counting_state;
     }
 }
 
