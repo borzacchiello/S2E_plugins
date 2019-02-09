@@ -17,6 +17,8 @@
 #define AFTER_SWITCH 0x040211E
 #define CHECK_FAIL 0x040212F
 
+#define ADDR_LOOP_RECV 0x40419A
+
 namespace s2e {
 namespace plugins {
 
@@ -28,6 +30,7 @@ std::string NetWire::addrToMessage(uint64_t pc) {
     if (pc == ADDR_CMD_SWITCH) return "Address command switch";
     if (pc == AVOID_1) return "AVOID_1";
     if (pc == AVOID_2) return "AVOID_2";
+    if (pc == ADDR_LOOP_RECV) return "ADDR LOOP RECV";
     if (pc == AFTER_SWITCH) return "AFTER_SWITCH";
     if (pc == CHECK_FAIL) return "CHECK_FAIL";
     if (pc == CMD_00) return "CMD_00";
@@ -153,13 +156,25 @@ void NetWire::initialize() {
 
 void NetWire::onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,
                         const std::vector<klee::ref<klee::Expr>> &) {
-    if (!loopCount.count(oldState)) return;
+    if (!loopCount.count(oldState) && !count_loop_recv.count(oldState)) return;
 
-    int count = loopCount[oldState];
+    int count_loopCount;
+    if (loopCount.count(oldState))
+        count_loopCount = loopCount[oldState];
+    else
+        count_loopCount = 0;
+
+    int recv_count;
+    if (count_loop_recv.count(oldState))
+        recv_count = count_loop_recv[oldState];
+    else
+        recv_count = 0;
 
     std::vector<S2EExecutionState *>::const_iterator it;
-    for (it = newStates.begin(); it != newStates.end(); ++it)
-        loopCount[*it] = count;
+    for (it = newStates.begin(); it != newStates.end(); ++it) {
+        loopCount[*it] = count_loopCount;
+        count_loop_recv[*it] = recv_count;
+    }
 }
 
 void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state,
@@ -167,6 +182,7 @@ void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState 
     if (pc == ADDR_CMD_SWITCH) signal->connect(sigc::mem_fun(*this, &NetWire::update_loopCount));
     if (pc == AVOID_1) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     if (pc == AVOID_2) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
+    if (pc == ADDR_LOOP_RECV) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkRecvLoopCout));
     if (pc == AFTER_SWITCH) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity));
     if (pc == CHECK_FAIL) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity2));
     if (pc == CMD_00) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
@@ -279,6 +295,22 @@ void NetWire::do_checkValidity2(S2EExecutionState *state, uint64_t pc) {
         getInfoStream(state) << message.str();
     )
     if (loopCount.count(state))
+        do_killState(state, pc);
+}
+
+void NetWire::do_checkRecvLoopCout(S2EExecutionState *state, uint64_t pc) {
+    if (!m_procDetector->isTracked(state)) return;
+
+    DEBUG_PRINT (
+            std::ostringstream message;
+            message << "In checkRecvLoopCout of state 0x" << std::hex << state << "\n" <<
+                    "    Message: " << addrToMessage(pc) << "\n";
+            getInfoStream(state) << message.str();
+    )
+
+    if (!count_loop_recv.count(state))
+        count_loop_recv[state] = 1;
+    else if (count_loop_recv[state]++ > 3)
         do_killState(state, pc);
 }
 
