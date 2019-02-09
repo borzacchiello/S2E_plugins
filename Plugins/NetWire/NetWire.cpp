@@ -244,6 +244,7 @@ void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState 
 
 void NetWire::do_incrementCounter(S2EExecutionState *state, uint64_t pc) {
     if (!m_procDetector->isTracked(state)) return;
+    if (!counting_flag.count(state) || !counting_flag[state]) return;
 
     DECLARE_PLUGINSTATE(InstructionTrackerState, state);
     plgState->increment();
@@ -267,9 +268,10 @@ void NetWire::update_loopCount(S2EExecutionState *state, uint64_t pc) {
             getInfoStream(state) << message.str();
     )
 
-    if (loopCount[state] == 2)
-        counting = true;
-    else if (loopCount[state] > 2)
+    if (loopCount[state] == 2) {
+        counting_flag[state] = true;
+        counting = true; // global counting. To avoid signal if no counting state
+    } else if (loopCount[state] > 2)
         do_killState(state, pc);
 }
 

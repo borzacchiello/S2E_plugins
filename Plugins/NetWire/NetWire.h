@@ -49,8 +49,8 @@ public:
     void initialize();
 
 private:
-    bool counting;
     bool debug;
+    bool counting;
     bool limit_instruction;
     int instruction_threshold;
     cmd_flags flags;
@@ -58,6 +58,7 @@ private:
 
     std::map<S2EExecutionState*, int> loopCount;
     std::map<S2EExecutionState*, int> count_loop_recv;
+    std::map<S2EExecutionState*, bool> counting_flag;
     void onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state, TranslationBlock *tb, uint64_t pc);
     void onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,
                      const std::vector<klee::ref<klee::Expr>> &);
