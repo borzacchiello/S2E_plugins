@@ -116,4 +116,16 @@ typedef struct cmd_flags {
     bool cmd_75;
 } cmd_flags;
 
+bool noMoreCommands(cmd_flags* flags) {
+    return flags->cmd_05 && flags->cmd_06 && flags->cmd_08 && flags->cmd_09 && flags->cmd_10 && flags->cmd_11 &&
+    flags->cmd_12 && flags->cmd_13 && flags->cmd_15 && flags->cmd_17 && flags->cmd_19 && flags->cmd_20 &&
+    flags->cmd_21 && flags->cmd_22 && flags->cmd_23 && flags->cmd_24 && flags->cmd_25 && flags->cmd_26 &&
+    flags->cmd_27 && flags->cmd_28 && flags->cmd_29 && flags->cmd_31 && flags->cmd_32 && flags->cmd_33 &&
+    flags->cmd_35 && flags->cmd_37 && flags->cmd_39 && flags->cmd_41 && flags->cmd_42 && flags->cmd_43 &&
+    flags->cmd_44 && flags->cmd_46 && flags->cmd_47 && flags->cmd_48 && flags->cmd_49 && flags->cmd_50 &&
+    flags->cmd_53 && flags->cmd_55 && flags->cmd_56 && flags->cmd_57 && flags->cmd_60 && flags->cmd_62 &&
+    flags->cmd_64 && flags->cmd_66 && flags->cmd_67 && flags->cmd_69 && flags->cmd_71 && flags->cmd_72 &&
+    flags->cmd_75;
+}
+
 #endif //SOURCE_COMMANDS_H

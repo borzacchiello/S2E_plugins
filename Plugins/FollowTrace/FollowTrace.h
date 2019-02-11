@@ -12,7 +12,7 @@
 #define ENFAL 1
 #define CREATE_REMOTE_THREAD_ADDR 0x0402446
 
-#define DIFF_TRESHOLD 2
+#define DIFF_THRESHOLD 2
 
 namespace s2e {
 namespace plugins {
@@ -23,11 +23,13 @@ class Trace: public PluginState {
 private:
     std::list<uint64_t> trace;
     int diff_count = 0;
+    int threshold = DIFF_THRESHOLD;
 
 public:
     Trace() {}
-    Trace(const std::list<uint64_t>& _trace) {
+    Trace(const std::list<uint64_t>& _trace, int _diff_count) {
         trace = _trace;
+        diff_count = _diff_count;
     }
     ~Trace() {}
 
@@ -36,7 +38,7 @@ public:
     }
 
     Trace *clone() const {
-        return new Trace(this->trace);
+        return new Trace(this->trace, this->diff_count);
     }
 
     bool is_trace_empty() {
@@ -45,6 +47,10 @@ public:
 
     void set_trace(const std::list<uint64_t>& _trace) {
         trace = _trace;
+    }
+
+    void set_threshold(int _threshold) {
+        threshold = _threshold;
     }
 
     uint64_t get_front() {
@@ -65,11 +71,12 @@ public:
                 if (el == pc) {
                     for (int j=0; j<=i; ++j)
                         trace.pop_front();
+                    diff_count = 0;
                     return true;
                 }
-                if (i++ > DIFF_TRESHOLD) return false;
+                if (i++ > threshold) break;
             }
-            if (++diff_count >= DIFF_TRESHOLD)
+            if (++diff_count >= threshold)
                 return false;
             return true;
         }
@@ -92,6 +99,8 @@ private:
     std::string log_filename;
     uint64_t begin_address;
     uint64_t end_address;
+
+    int threshold;
 
     bool initialized;
 

@@ -9,6 +9,7 @@
 #include <s2e/Plugins/Core/BaseInstructions.h>
 #include <s2e/S2EExecutionState.h>
 #include "commands.h"
+#include "../LuigiSearcher/LuigiSearcher.h"
 
 
 namespace s2e {
@@ -53,6 +54,8 @@ private:
     bool counting;
     bool limit_instruction;
     int instruction_threshold;
+
+    LuigiSearcher* luigi;
     cmd_flags flags;
     ProcessExecutionDetector *m_procDetector;
 
@@ -68,7 +71,9 @@ private:
     void update_loopCount(S2EExecutionState *state, uint64_t pc);
     void do_checkValidity(S2EExecutionState *state, uint64_t pc);
     void do_checkValidity2(S2EExecutionState *state, uint64_t pc);
+    void updateBool(S2EExecutionState *state, uint64_t pc, bool* b);
     void do_killState(S2EExecutionState *state, uint64_t pc);
+    void do_killAllStates(S2EExecutionState *state);
     void do_logName(S2EExecutionState *state, uint64_t pc);
     std::string addrToMessage(uint64_t pc);
 };

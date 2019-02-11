@@ -31,6 +31,7 @@ void FollowTrace::initialize() {
     log_filename   = s2e()->getConfig()->getString(getConfigKey() + ".log_filename");
     begin_address  = s2e()->getConfig()->getInt(getConfigKey() + ".begin_address");
     end_address    = s2e()->getConfig()->getInt(getConfigKey() + ".end_address");
+    threshold      = s2e()->getConfig()->getInt(getConfigKey() + ".threshold");
 
     s2e()->getCorePlugin()->onTranslateInstructionStart.connect(
             sigc::mem_fun(*this, &FollowTrace::onTranslateInstruction));
@@ -40,8 +41,10 @@ void FollowTrace::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionSt
                                                TranslationBlock *tb, uint64_t pc) {
 
 #if ENFAL
-    if (pc == CREATE_REMOTE_THREAD_ADDR)
+    if (pc == CREATE_REMOTE_THREAD_ADDR) {
         signal->connect(sigc::mem_fun(*this, &FollowTrace::updateBeginEndENFAL));
+        return;
+    }
 #endif
     if (begin_address <= pc && pc <= end_address)
         signal->connect(sigc::mem_fun(*this, &FollowTrace::follow));
@@ -95,6 +98,7 @@ void FollowTrace::setTrace(Trace* t) {
     }
     log.close();
     t->set_trace(trace);
+    t->set_threshold(threshold);
 }
 
 void FollowTrace::killState(S2EExecutionState *state, uint64_t pc, std::string mex) {

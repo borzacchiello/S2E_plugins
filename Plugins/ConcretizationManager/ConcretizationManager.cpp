@@ -38,7 +38,7 @@ void ConcretizationManager::onBeforeSymbolicDataMemoryAccess(S2EExecutionState *
 
     getInfoStream(state) << "onBeforeSymbolicDataMemoryAccess"
                           << ", EIP=" << hexval(state->regs()->getPc()) << ", isWrite=" << isWrite << "\n";
-    getInfoStream(state) << "  addr=" << addr << "\n";
+    // getInfoStream(state) << "  addr=" << addr << "\n";
     getInfoStream(state) << "  value=" << value << "\n";
 
     if (isWrite) {
