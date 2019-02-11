@@ -44,7 +44,8 @@ namespace s2e {
                 // getInfoStream(currentState) << "returning state " << currentState << "\n";
                 return *currentState;
             } else {
-                return *fringe[klee::theRNG.getInt32() % fringe.size()];
+                // return *fringe[klee::theRNG.getInt32() % fringe.size()];
+                return *fringe.front();
             }
         }
 

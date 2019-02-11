@@ -146,6 +146,7 @@ void NetWire::initialize() {
 
     limit_instruction = s2e()->getConfig()->getBool(getConfigKey() + ".limit_instruction");
     instruction_threshold = s2e()->getConfig()->getInt(getConfigKey() + ".instruction_threshold");
+    luigi = s2e()->getPlugin<LuigiSearcher>();
 
     m_procDetector = s2e()->getPlugin<ProcessExecutionDetector>();
     s2e()->getCorePlugin()->onTranslateInstructionStart.connect(
