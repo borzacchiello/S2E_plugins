@@ -36,7 +36,7 @@ namespace s2e {
         klee::ExecutionState &LuigiSearcher::selectState() {
             S2EExecutionState* ris = fringe.back();
 
-            if (!star) {
+            if (true || !star) {
                 if (currentState == nullptr) {
                     currentState = ris;
                 }

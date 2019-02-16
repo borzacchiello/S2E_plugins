@@ -146,6 +146,7 @@ void NetWire::initialize() {
 
     limit_instruction = s2e()->getConfig()->getBool(getConfigKey() + ".limit_instruction");
     instruction_threshold = s2e()->getConfig()->getInt(getConfigKey() + ".instruction_threshold");
+    limit_one_command = s2e()->getConfig()->getBool(getConfigKey() + ".limit_one_command");
     luigi = s2e()->getPlugin<LuigiSearcher>();
 
     m_procDetector = s2e()->getPlugin<ProcessExecutionDetector>();
@@ -193,348 +194,354 @@ void NetWire::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState 
     if (pc == ADDR_LOOP_RECV) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkRecvLoopCout));
     if (pc == AFTER_SWITCH) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity));
     if (pc == CHECK_FAIL) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity2));
-    if (pc == CMD_00) signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
+    if (pc == CMD_00) {
+        if (!flags.cmd_00) {
+            signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_00));
+        } else
+            signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
+    }
     if (pc == CMD_04) signal->connect(sigc::mem_fun(*this, &NetWire::do_checkValidity));
     if (pc == CMD_05) {
         if (!flags.cmd_05) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_05));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_05));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_06) {
         if (!flags.cmd_06) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_06));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_06));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_08) {
         if (!flags.cmd_08) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_08));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_08));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_09) {
         if (!flags.cmd_09) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_09));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_09));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_10) {
         if (!flags.cmd_10) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_10));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_10));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_11) {
         if (!flags.cmd_11) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_11));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_11));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_12) {
         if (!flags.cmd_12) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_12));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_12));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_13) {
         if (!flags.cmd_13) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_13));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_13));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_15) {
         if (!flags.cmd_15) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_15));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_15));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_17) {
         if (!flags.cmd_17) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_17));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_17));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_19) {
         if (!flags.cmd_19) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_19));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_19));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_20) {
         if (!flags.cmd_20) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_20));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_20));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_21) {
         if (!flags.cmd_21) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_21));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_21));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_22) {
         if (!flags.cmd_22) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_22));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_22));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_23) {
         if (!flags.cmd_23) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_23));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_23));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_24) {
         if (!flags.cmd_24) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_24));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_24));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_25) {
         if (!flags.cmd_25) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_25));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_25));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_26) {
         if (!flags.cmd_26) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_26));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_26));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_27) {
         if (!flags.cmd_27) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_27));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_27));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_28) {
         if (!flags.cmd_28) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_28));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_28));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_29) {
         if (!flags.cmd_29) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_29));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_29));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_31) {
         if (!flags.cmd_31) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_31));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_31));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_32) {
         if (!flags.cmd_32) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_32));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_32));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_33) {
         if (!flags.cmd_33) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_33));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_33));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_35) {
         if (!flags.cmd_35) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_35));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_35));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_37) {
         if (!flags.cmd_37) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_37));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_37));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_39) {
         if (!flags.cmd_39) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_39));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_39));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_41) {
         if (!flags.cmd_41) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_41));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_41));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_42) {
         if (!flags.cmd_42) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_42));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_42));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_43) {
         if (!flags.cmd_43) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_43));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_43));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_44) {
         if (!flags.cmd_44) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_44));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_44));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_46) {
         if (!flags.cmd_46) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_46));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_46));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_47) {
         if (!flags.cmd_47) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_47));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_47));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_48) {
         if (!flags.cmd_48) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_48));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_48));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_49) {
         if (!flags.cmd_49) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_49));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_49));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_50) {
         if (!flags.cmd_50) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_50));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_50));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_53) {
         if (!flags.cmd_53) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_53));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_53));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_55) {
         if (!flags.cmd_55) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_55));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_55));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_56) {
         if (!flags.cmd_56) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_56));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_56));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_57) {
         if (!flags.cmd_57) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_57));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_57));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_60) {
         if (!flags.cmd_60) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_60));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_60));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_62) {
         if (!flags.cmd_62) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_62));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_62));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_64) {
         if (!flags.cmd_64) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_64));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_64));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_66) {
         if (!flags.cmd_66) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_66));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_66));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_67) {
         if (!flags.cmd_67) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_67));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_67));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_69) {
         if (!flags.cmd_69) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_69));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_69));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_71) {
         if (!flags.cmd_71) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_71));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_71));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_72) {
         if (!flags.cmd_72) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_72));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_72));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
     if (pc == CMD_75) {
         if (!flags.cmd_75) {
             signal->connect(sigc::mem_fun(*this, &NetWire::do_logName));
-            signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_75));
+            // signal->connect(sigc::bind(sigc::mem_fun(*this, &NetWire::updateBool), &flags.cmd_75));
         } else
             signal->connect(sigc::mem_fun(*this, &NetWire::do_killState));
     }
@@ -576,7 +583,7 @@ void NetWire::update_loopCount(S2EExecutionState *state, uint64_t pc) {
         counting_flag[state] = true;
         counting = true; // global counting. To avoid signal if no counting state
         luigi->goLuigiGo(state);
-    } else if (loopCount[state] > 2)
+    } else if (loopCount[state] > 2 && limit_one_command)
         do_killState(state, pc);
 }
 
@@ -588,7 +595,7 @@ void NetWire::do_checkValidity(S2EExecutionState *state, uint64_t pc) {
                     "    Message: " << addrToMessage(pc) << "\n";
             getInfoStream(state) << message.str();
     )
-    if (!loopCount.count(state) || loopCount[state] > 1) {
+    if ((!loopCount.count(state) || loopCount[state] > 1) && limit_one_command) {
         // if (noMoreCommands(&flags))
             // do_killAllStates(state);
         do_killState(state, pc);
@@ -620,7 +627,7 @@ void NetWire::do_checkRecvLoopCout(S2EExecutionState *state, uint64_t pc) {
 
     if (!count_loop_recv.count(state))
         count_loop_recv[state] = 1;
-    else if (count_loop_recv[state]++ > 3)
+    else if (count_loop_recv[state]++ > 3 && limit_one_command)
         do_killState(state, pc);
 }
 

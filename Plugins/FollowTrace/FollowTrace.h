@@ -9,7 +9,7 @@
 #include <s2e/Plugin.h>
 #include <list>
 
-#define ENFAL 1
+#define ENFAL 0
 #define CREATE_REMOTE_THREAD_ADDR 0x0402446
 
 #define DIFF_THRESHOLD 2
@@ -22,6 +22,7 @@ class ProcessExecutionDetector;
 class Trace: public PluginState {
 private:
     std::list<uint64_t> trace;
+    bool follow = true;
     int diff_count = 0;
     int threshold = DIFF_THRESHOLD;
 
@@ -57,7 +58,12 @@ public:
         return trace.front();
     }
 
+    void unfollow (){
+        this->follow = false;
+    }
+
     bool consume(uint64_t pc) {
+        if (!follow) return true;
         if (trace.empty()) return false;
 
         if (trace.front() == pc) {
@@ -101,6 +107,7 @@ private:
     uint64_t end_address;
 
     int threshold;
+    bool stop_on_target;
 
     bool initialized;
 

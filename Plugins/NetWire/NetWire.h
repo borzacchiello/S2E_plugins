@@ -53,6 +53,7 @@ private:
     bool debug;
     bool counting;
     bool limit_instruction;
+    bool limit_one_command;
     int instruction_threshold;
 
     LuigiSearcher* luigi;

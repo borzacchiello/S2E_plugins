@@ -29,9 +29,10 @@ void FollowTrace::initialize() {
     initialized = false;
 
     log_filename   = s2e()->getConfig()->getString(getConfigKey() + ".log_filename");
-    begin_address  = s2e()->getConfig()->getInt(getConfigKey() + ".begin_address");
-    end_address    = s2e()->getConfig()->getInt(getConfigKey() + ".end_address");
-    threshold      = s2e()->getConfig()->getInt(getConfigKey() + ".threshold");
+    begin_address  = s2e()->getConfig()->getInt(getConfigKey()    + ".begin_address");
+    end_address    = s2e()->getConfig()->getInt(getConfigKey()    + ".end_address");
+    threshold      = s2e()->getConfig()->getInt(getConfigKey()    + ".threshold");
+    stop_on_target = s2e()->getConfig()->getBool(getConfigKey()   + ".stop_on_target");
 
     s2e()->getCorePlugin()->onTranslateInstructionStart.connect(
             sigc::mem_fun(*this, &FollowTrace::onTranslateInstruction));
@@ -65,10 +66,19 @@ void FollowTrace::follow(S2EExecutionState *state, uint64_t pc) {
 #endif
         std::ostringstream os;
         uint64_t a = plgState->get_front();
+#if ENFAL
         os << "avoid. " << std::hex << pc - (uint32_t)begin_address << " in place of " << std::hex << a;
+#else
+        os << "avoid. " << std::hex << pc << " in place of " << std::hex << a;
+#endif
         killState(state, pc, os.str());
     }
-    if (plgState->is_trace_empty()) killState(state, pc, "target");
+    if (plgState->is_trace_empty()) {
+        if (stop_on_target)
+            killState(state, pc, "target");
+        else
+            plgState->unfollow();
+    }
 }
 
 void FollowTrace::updateBeginEndENFAL(S2EExecutionState *state, uint64_t pc) {
