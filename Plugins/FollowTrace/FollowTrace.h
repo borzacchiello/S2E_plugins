@@ -5,6 +5,7 @@
 #ifndef S2E_FOLLOWTRACE_H
 #define S2E_FOLLOWTRACE_H
 
+#include <s2e/Plugins/ExecutionTracers/TestCaseGenerator.h>
 #include <s2e/CorePlugin.h>
 #include <s2e/Plugin.h>
 #include <list>
@@ -102,6 +103,7 @@ public:
 
 private:
     ProcessExecutionDetector *m_procDetector;
+    testcases::TestCaseGenerator* m_testGen;
     std::string log_filename;
     uint64_t begin_address;
     uint64_t end_address;

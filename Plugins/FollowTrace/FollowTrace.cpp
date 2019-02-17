@@ -21,11 +21,12 @@ namespace plugins {
 
 S2E_DEFINE_PLUGIN(FollowTrace,
 "Follow instruction trace", "",
-"ProcessExecutionDetector");
+"ProcessExecutionDetector", "TestCaseGenerator");
 
 void FollowTrace::initialize() {
 
     m_procDetector = s2e()->getPlugin<ProcessExecutionDetector>();
+    m_testGen = s2e()->getPlugin<testcases::TestCaseGenerator>();
     initialized = false;
 
     log_filename   = s2e()->getConfig()->getString(getConfigKey() + ".log_filename");
@@ -74,9 +75,10 @@ void FollowTrace::follow(S2EExecutionState *state, uint64_t pc) {
         killState(state, pc, os.str());
     }
     if (plgState->is_trace_empty()) {
-        if (stop_on_target)
+        if (stop_on_target) {
+            m_testGen->generateTestCases(state, "target", testcases::TC_LOG);
             killState(state, pc, "target");
-        else
+        } else
             plgState->unfollow();
     }
 }
