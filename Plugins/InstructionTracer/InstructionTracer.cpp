@@ -43,6 +43,7 @@ void InstructionTracer::onStateFork(S2EExecutionState *oldState, const std::vect
     for (auto it = newStates.begin(); it != newStates.end(); ++it)
         log << "," << (*it)->getGuid();
     log << "\n";
+    log.flush();
 
 }
 
@@ -56,6 +57,7 @@ void InstructionTracer::logOnFile(S2EExecutionState *state, uint64_t pc) {
     if (!m_procDetector->isTracked(state)) return;
 
     log << state->getGuid() << "," << pc << "\n";
+    log.flush();
 }
 
 } // namespace plugins

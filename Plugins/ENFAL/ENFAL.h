@@ -12,6 +12,24 @@
 namespace s2e {
 namespace plugins {
 
+typedef struct CMDS {
+    bool cmd_01;
+    bool cmd_02;
+    bool cmd_03;
+    bool cmd_04;
+    bool cmd_05;
+    bool cmd_06;
+    bool cmd_07;
+    bool cmd_08;
+    bool cmd_09;
+    bool cmd_10;
+    bool cmd_11;
+    bool cmd_12;
+    bool cmd_13;
+    bool cmd_14;
+    bool cmd_15;
+} CMDS;
+
 typedef enum BORZ_ENFAL_COMMAND {
     NOTIFY_THREAD_ADDRESS
 } BORZ_ENFAL_COMMAND;
@@ -45,6 +63,10 @@ private:
     unsigned int thread_address;
     ProcessExecutionDetector *m_procDetector;
     std::map<S2EExecutionState*, int> loopCount;
+
+    CMDS flags;
+
+    bool limit_loop;
 
     void onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *state, TranslationBlock *tb, uint64_t pc);
     void onStateFork(S2EExecutionState *oldState, const std::vector<S2EExecutionState *> &newStates,

@@ -13,7 +13,7 @@
 #define ENFAL 0
 #define CREATE_REMOTE_THREAD_ADDR 0x0402446
 
-#define DIFF_THRESHOLD 2
+int DIFF_THRESHOLD = 3;
 
 namespace s2e {
 namespace plugins {
@@ -26,12 +26,14 @@ private:
     bool follow = true;
     int diff_count = 0;
     int threshold = DIFF_THRESHOLD;
+    uint64_t prev = 0;
 
 public:
     Trace() {}
-    Trace(const std::list<uint64_t>& _trace, int _diff_count) {
+    Trace(const std::list<uint64_t>& _trace, int _diff_count, uint64_t _prev) {
         trace = _trace;
         diff_count = _diff_count;
+        prev = _prev;
     }
     ~Trace() {}
 
@@ -40,7 +42,7 @@ public:
     }
 
     Trace *clone() const {
-        return new Trace(this->trace, this->diff_count);
+        return new Trace(this->trace, this->diff_count, this->prev);
     }
 
     bool is_trace_empty() {
@@ -52,7 +54,8 @@ public:
     }
 
     void set_threshold(int _threshold) {
-        threshold = _threshold;
+        this->threshold = _threshold;
+        DIFF_THRESHOLD = _threshold;
     }
 
     uint64_t get_front() {
@@ -72,8 +75,9 @@ public:
             diff_count = 0;
             return true;
         } else {
-            int i = 0;
-            for (auto const& el: trace) {
+            int i = 0; int new_treshold = threshold;
+            uint64_t prec = 0;
+            for (uint64_t el: trace) {
 
                 if (el == pc) {
                     for (int j=0; j<=i; ++j)
@@ -81,11 +85,18 @@ public:
                     diff_count = 0;
                     return true;
                 }
-                if (i++ > threshold) break;
+                if (i > new_treshold) break;
+                if (prec == el) new_treshold++;
+                i++;
+                prec = el;
             }
-            if (++diff_count >= threshold)
+            if (diff_count >= threshold) {
+                diff_count = 0;
                 return false;
-            return true;
+            } else {
+                diff_count++;
+                return true;
+            }
         }
     }
 

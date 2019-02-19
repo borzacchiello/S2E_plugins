@@ -101,6 +101,24 @@ void ENFAL::initialize() {
     thread_address = 0;
     debug = true;// s2e()->getConfig()->getBool(getConfigKey() + ".debug");
 
+    flags.cmd_01 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_01");
+    flags.cmd_02 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_02");
+    flags.cmd_03 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_03");
+    flags.cmd_04 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_04");
+    flags.cmd_05 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_05");
+    flags.cmd_06 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_06");
+    flags.cmd_07 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_07");
+    flags.cmd_08 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_08");
+    flags.cmd_09 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_09");
+    flags.cmd_10 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_10");
+    flags.cmd_11 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_11");
+    flags.cmd_12 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_12");
+    flags.cmd_13 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_13");
+    flags.cmd_14 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_14");
+    flags.cmd_15 = s2e()->getConfig()->getBool(getConfigKey() + ".cmd_15");
+
+    limit_loop = s2e()->getConfig()->getBool(getConfigKey() + ".limit_loop");
+
     m_procDetector = s2e()->getPlugin<ProcessExecutionDetector>();
     s2e()->getCorePlugin()->onTranslateInstructionStart.connect(
             sigc::mem_fun(*this, &ENFAL::onTranslateInstruction));
@@ -164,50 +182,95 @@ void ENFAL::onTranslateInstruction(ExecutionSignal *signal, S2EExecutionState *s
         signal->connect(sigc::mem_fun(*this, &ENFAL::echoCallback));
     }
     // ****** COMMANDS ******
-    if (pc == thread_address + OFFSET_IPOP_LOAD_CHECK) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_IPOP_LOAD_CHECK) { //
+        if (flags.cmd_01)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_PING) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_PING) { //
+        if (flags.cmd_02)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_SEND_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_SEND_FILE) { // X
+        if (flags.cmd_03)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_RECV_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_RECV_FILE) { // X
+        if (flags.cmd_04)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_CMDEXEC) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_CMDEXEC) { //
+        if (flags.cmd_05)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_DELETE_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_DELETE_FILE) { //
+        if (flags.cmd_06)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_MOVE_FILE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_MOVE_FILE) { //
+        if (flags.cmd_07)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_LS) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_LS) { // X
+        if (flags.cmd_08)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_INTERACTIVE_MODE) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_INTERACTIVE_MODE) { //
+        if (flags.cmd_09)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_MKDIR) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_MKDIR) { //
+        if (flags.cmd_10)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_RMDIR) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_RMDIR) { //
+        if (flags.cmd_11)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_TERMINATE_PROCESS) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_TERMINATE_PROCESS) { //
+        if (flags.cmd_12)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_WINEXEC_NETBN) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_WINEXEC_NETBN) { // X
+        if (flags.cmd_13)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_WINEXEC_NETDC) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
+    if (pc == thread_address + OFFSET_WINEXEC_NETDC) { // X
+        if (flags.cmd_14)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
-    if (pc == thread_address + OFFSET_WINEXEC_NFAL) {
-        signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+    if (pc == thread_address + OFFSET_WINEXEC_NFAL) { //
+        if (flags.cmd_15)
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_logName));
+        else
+            signal->connect(sigc::mem_fun(*this, &ENFAL::do_killState));
     }
 }
 
@@ -255,7 +318,7 @@ void ENFAL::update_loopCount(S2EExecutionState *state, uint64_t pc) {
             getInfoStream(state) << message.str();
     )
 
-    if (loopCount[state] > 2)
+    if (limit_loop && loopCount[state] > 2)
         do_killState(state, pc);
 }
 
