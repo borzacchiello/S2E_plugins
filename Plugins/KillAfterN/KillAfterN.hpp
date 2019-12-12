@@ -25,7 +25,7 @@ typedef struct KillAfterNGuestCommand {
 } KillAfterNGuestCommand;
 
 class ProcessExecutionDetector;
-class KillAfterN : public Plugin, public BaseInstructionsPluginInvokerInterface {
+class KillAfterN : public Plugin, public BaseInstructions::IPluginInvoker {
     S2E_PLUGIN
 public:
 

@@ -46,7 +46,7 @@ typedef struct EnfalGuestCommand {
 } EnfalGuestCommand;
 
 class ProcessExecutionDetector;
-class ENFAL : public Plugin, public BaseInstructionsPluginInvokerInterface {
+class ENFAL : public Plugin, public BaseInstructions::IPluginInvoker {
     S2E_PLUGIN
 public:
 
